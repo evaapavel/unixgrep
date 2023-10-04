@@ -111,6 +111,13 @@ namespace UnixGrepCon
                 ShowSyntaxAndExit();
             }
 
+            // Display params:
+            Console.WriteLine($"Search string:     {searchString}");
+            Console.WriteLine($"Start directory:   {startDirectory}");
+            Console.WriteLine($"File filter:       {fileFilter}");
+            Console.WriteLine($"Exclude dirs:      {string.Join(';', excludeDirs)}");
+            Console.WriteLine();
+
             // Prepare the "grep" search.
             bool recurseSubdirectories = true;
             Grep grep = new Grep(startDirectory, fileFilter, recurseSubdirectories, searchString!, excludeDirs);
