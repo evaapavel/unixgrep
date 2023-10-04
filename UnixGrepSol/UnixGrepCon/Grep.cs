@@ -19,6 +19,9 @@ namespace UnixGrepCon
         /// <summary>File filter in a form such as "*", "*.cs;*.html", "test-*.py;*.csproj;*.sln" etc.</summary>
         private string[] filePatterns;
 
+        /// <summary>Regular expression defining names of the files to BE PROCESSED.</summary>
+        private Regex includeFilesRegex;
+
         /// <summary>True :-: do recurse into subdirectories of the given start directory, false :-: do not dive into subdirs.</summary>
         private bool recurseSubdirectories;
 
@@ -56,6 +59,7 @@ namespace UnixGrepCon
             this.excludeDirs = excludeDirs;
             this.currentRegex = new Regex(this.searchString);
             this.excludeDirsRegex = BuildExcludeDirsRegex(this.excludeDirs);
+            this.includeFilesRegex = BuildIncludeFilesRegex(this.filePatterns);
         }
 
         /// <summary>
@@ -86,16 +90,21 @@ namespace UnixGrepCon
             bool doSearchThisDirectory = (! match.Success);
             if ( doSearchThisDirectory )
             {
-                //string[] fileNamesMatchingOneFilter = Directory.GetFiles(directory, this.fileFilter);
-                List<string> fileNamesToProcess = new List<string>();
-                foreach (string filePattern in this.filePatterns)
-                {
-                    string[] fileNamesMatchingOneFilter = Directory.GetFiles(directory, filePattern);
-                    fileNamesToProcess.AddRange(fileNamesMatchingOneFilter);
-                }
+                //string[] fileNamesToProcess = Directory.GetFiles(directory, this.fileFilter);
+                //List<string> fileNamesToProcess = new List<string>();
+                //foreach (string filePattern in this.filePatterns)
+                //{
+                //    string[] fileNamesMatchingOneFilter = Directory.GetFiles(directory, filePattern);
+                //    fileNamesToProcess.AddRange(fileNamesMatchingOneFilter);
+                //}
+                string[] fileNamesToProcess = Directory.GetFiles(directory);
                 foreach (string fileName in fileNamesToProcess)
                 {
-                    SearchInFile(fileName);
+                    // Process only those filenames matching the given pattern.
+                    if (this.includeFilesRegex.IsMatch(fileName))
+                    {
+                        SearchInFile(fileName);
+                    }
                 }
                 if (this.recurseSubdirectories)
                 {
@@ -138,13 +147,25 @@ namespace UnixGrepCon
 
         private Regex BuildExcludeDirsRegex(string[] excludeDirs)
         {
+            Regex result = BuildFileSystemPathsRegex(excludeDirs);
+            return result;
+        }
+
+        private Regex BuildIncludeFilesRegex(string[] includeFiles)
+        {
+            Regex result = BuildFileSystemPathsRegex(includeFiles);
+            return result;
+        }
+
+        private Regex BuildFileSystemPathsRegex(string[] names)
+        {
             StringBuilder sb = new StringBuilder();
             sb.Append('^');
             sb.Append('(');
-            if (excludeDirs.Length > 0)
+            if (names.Length > 0)
             {
                 bool isFirstOption = true;
-                foreach (string excludeDir in excludeDirs)
+                foreach (string excludeDir in names)
                 {
                     // Add an option delimiter first, if necessary.
                     if (isFirstOption)
@@ -155,8 +176,9 @@ namespace UnixGrepCon
                     {
                         sb.Append('|');
                     }
-                    // Add the dir name converted into a Regex string.
-                    string regexSequence = DirNameWithWildcardsToRegexSequence(excludeDir);
+                    // Add the name converted into a Regex string.
+                    //string regexSequence = DirNameWithWildcardsToRegexSequence(excludeDir);
+                    string regexSequence = NameWithWildcardsToRegexSequence(excludeDir);
                     //sb.Append("(" + regexSequence + ")");
                     sb.Append(regexSequence);
                 }
@@ -172,10 +194,22 @@ namespace UnixGrepCon
             return result;
         }
 
-        private string DirNameWithWildcardsToRegexSequence(string directoryName)
+        //private string DirNameWithWildcardsToRegexSequence(string directoryName)
+        //{
+        //    string result = NameWithWildcardsToRegexSequence(directoryName);
+        //    return result;
+        //}
+
+        //private string FileNameWithWildcardsToRegexSequence(string fileName)
+        //{
+        //    string result = NameWithWildcardsToRegexSequence(fileName);
+        //    return result;
+        //}
+
+        private string NameWithWildcardsToRegexSequence(string name)
         {
             StringBuilder sb = new StringBuilder();
-            foreach (char ch in directoryName)
+            foreach (char ch in name)
             {
                 switch (ch)
                 {
