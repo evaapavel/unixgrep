@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "UnixGrepCon": {
+      "commandName": "Project",
+      "commandLineArgs": "-s \"public static\" -d C:\\pfoltyn\\PROJECTS\\Gemalto_SSH\\gwes\\deviceagents\\device-agent\\FaceCamera\\FaceCamera.Cmd -e \"bin;obj;.*\""
+    }
+  }
+}
