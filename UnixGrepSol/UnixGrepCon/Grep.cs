@@ -115,6 +115,7 @@ namespace UnixGrepCon
         {
             StringBuilder sb = new StringBuilder();
             sb.Append('^');
+            sb.Append('(');
             if (excludeDirs.Length > 0)
             {
                 bool isFirstOption = true;
@@ -131,13 +132,15 @@ namespace UnixGrepCon
                     }
                     // Add the dir name converted into a Regex string.
                     string regexSequence = DirNameWithWildcardsToRegexSequence(excludeDir);
-                    sb.Append("(" + regexSequence + ")");
+                    //sb.Append("(" + regexSequence + ")");
+                    sb.Append(regexSequence);
                 }
             }
             else
             {
                 sb.Append(".*");
             }
+            sb.Append(')');
             sb.Append('$');
             string regexPattern = sb.ToString();
             Regex result = new Regex(regexPattern);
