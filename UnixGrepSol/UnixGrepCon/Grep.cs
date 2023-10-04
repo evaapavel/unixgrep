@@ -13,8 +13,11 @@ namespace UnixGrepCon
         /// <summary>Directory to start the search within.</summary>
         private string startDirectory;
 
-        /// <summary>A parameter used eg in "dir" command. The asterisk (*) means all files, asterisk-dot-html means (*.html) means HTML files etc. The default is all files.</summary>
-        private string fileFilter;
+        ///// <summary>A parameter used eg in "dir" command. The asterisk (*) means all files, asterisk-dot-html means (*.html) means HTML files etc. The default is all files.</summary>
+        //private string fileFilter;
+
+        /// <summary>File filter in a form such as "*", "*.cs;*.html", "test-*.py;*.csproj;*.sln" etc.</summary>
+        private string[] filePatterns;
 
         /// <summary>True :-: do recurse into subdirectories of the given start directory, false :-: do not dive into subdirs.</summary>
         private bool recurseSubdirectories;
@@ -34,18 +37,20 @@ namespace UnixGrepCon
         /// <summary>Counts the files matching the search criteria.</summary>
         private int matchCounter;
 
+        // /// <param name="fileFilter">The file filter.</param>
         /// <summary>
         /// Initializes a new instance of the <see cref="Grep"/> class.
         /// </summary>
         /// <param name="startDirectory">The start directory.</param>
-        /// <param name="fileFilter">The file filter.</param>
+        /// <param name="filePatterns">File filter in a form such as "*", "*.cs;*.html", "test-*.py;*.csproj;*.sln" etc.</param>
         /// <param name="recurseSubdirectories">if set to <c>true</c> [recurse subdirectories].</param>
         /// <param name="searchString">String to search for in the files (regex).</param>
         /// <param name="excludeDirs">Directory names (with possible wildcards) to be excluded from the search.</param>
-        public Grep(string startDirectory, string fileFilter, bool recurseSubdirectories, string searchString, string[] excludeDirs)
+        public Grep(string startDirectory, string[] filePatterns, bool recurseSubdirectories, string searchString, string[] excludeDirs)
         {
             this.startDirectory = startDirectory;
-            this.fileFilter = fileFilter;
+            //this.fileFilter = fileFilter;
+            this.filePatterns = filePatterns;
             this.recurseSubdirectories = recurseSubdirectories;
             this.searchString = searchString;
             this.excludeDirs = excludeDirs;
@@ -81,7 +86,13 @@ namespace UnixGrepCon
             bool doSearchThisDirectory = (! match.Success);
             if ( doSearchThisDirectory )
             {
-                string[] fileNamesToProcess = Directory.GetFiles(directory, this.fileFilter);
+                //string[] fileNamesMatchingOneFilter = Directory.GetFiles(directory, this.fileFilter);
+                List<string> fileNamesToProcess = new List<string>();
+                foreach (string filePattern in this.filePatterns)
+                {
+                    string[] fileNamesMatchingOneFilter = Directory.GetFiles(directory, filePattern);
+                    fileNamesToProcess.AddRange(fileNamesMatchingOneFilter);
+                }
                 foreach (string fileName in fileNamesToProcess)
                 {
                     SearchInFile(fileName);

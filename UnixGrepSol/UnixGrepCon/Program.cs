@@ -10,7 +10,7 @@ namespace UnixGrepCon
             Console.WriteLine("Parameters:");
             Console.WriteLine("<search-string> means the string to search for within the files.");
             Console.WriteLine("<start-directory> means the directory to start searching in.");
-            Console.WriteLine("<file-filter> means rather a file pattern (such as *.cs) that the name of a file must match in order for the file to be included in the search.");
+            Console.WriteLine("<file-filter> means rather a file pattern (such as *.cs) that the name of a file must match in order for the file to be included in the search. Multiple semicolon-separated patterns are allowed.");
             Console.WriteLine("<exclude-dirs> means a semicolon-delimited list of directories (wildcars are enabled) that should NOT be included in the search.");
             Console.WriteLine();
             Console.WriteLine("Remarks:");
@@ -21,6 +21,7 @@ namespace UnixGrepCon
             Console.WriteLine("If start dir not specified, the search starts in the current directory.");
             Console.WriteLine("<file-filter>");
             Console.WriteLine("All files are searched by default.");
+            Console.WriteLine("If a file filter is provided, any file matching ANY of the patterns provided shall be searched.");
             Console.WriteLine("<exclude-dirs>");
             Console.WriteLine("Any directory shall be searched for by default.");
             Console.WriteLine("");
@@ -114,17 +115,22 @@ namespace UnixGrepCon
             // Adjust the start directory.
             startDirectory = Path.GetFullPath(startDirectory);
 
+            // Calculate the file filter.
+            string[] filePatterns = fileFilter.Split(';');
+
             // Display params:
             //Console.WriteLine($"Current directory: {Directory.GetCurrentDirectory()}");
             Console.WriteLine($"Search string:     {searchString}");
             Console.WriteLine($"Start directory:   {startDirectory}");
-            Console.WriteLine($"File filter:       {fileFilter}");
+            //Console.WriteLine($"File filter:       {fileFilter}");
+            Console.WriteLine($"File patterns:     {string.Join(';', filePatterns)}");
             Console.WriteLine($"Exclude dirs:      {string.Join(';', excludeDirs)}");
             Console.WriteLine();
 
             // Prepare the "grep" search.
             bool recurseSubdirectories = true;
-            Grep grep = new Grep(startDirectory, fileFilter, recurseSubdirectories, searchString!, excludeDirs);
+            //Grep grep = new Grep(startDirectory, fileFilter, recurseSubdirectories, searchString!, excludeDirs);
+            Grep grep = new Grep(startDirectory, filePatterns, recurseSubdirectories, searchString!, excludeDirs);
             grep.StartSearch();
         }
     }
