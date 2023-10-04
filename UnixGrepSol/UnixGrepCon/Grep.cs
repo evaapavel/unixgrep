@@ -31,6 +31,9 @@ namespace UnixGrepCon
         /// <summary>A regular expression to tell whether a given directory should be searched through.</summary>
         private Regex excludeDirsRegex;
 
+        /// <summary>Counts the files matching the search criteria.</summary>
+        private int matchCounter;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Grep"/> class.
         /// </summary>
@@ -55,7 +58,17 @@ namespace UnixGrepCon
         /// </summary>
         public void StartSearch()
         {
+            this.matchCounter = 0;
             SearchDirectory(this.startDirectory);
+            Console.WriteLine();
+            if (this.matchCounter > 0)
+            {
+                Console.WriteLine($"The search string ({this.searchString}) found in {this.matchCounter} file(s).");
+            }
+            else
+            {
+                Console.WriteLine($"No files containing the search string ({this.searchString}) were found.");
+            }
         }
 
         private void SearchDirectory(string directory)
@@ -95,6 +108,7 @@ namespace UnixGrepCon
                 {
                     // Just write the file name to the console. That's all.
                     Console.WriteLine(fileName);
+                    this.matchCounter++;
                 }
             }
         }

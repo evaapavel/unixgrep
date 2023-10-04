@@ -111,7 +111,11 @@ namespace UnixGrepCon
                 ShowSyntaxAndExit();
             }
 
+            // Adjust the start directory.
+            startDirectory = Path.GetFullPath(startDirectory);
+
             // Display params:
+            //Console.WriteLine($"Current directory: {Directory.GetCurrentDirectory()}");
             Console.WriteLine($"Search string:     {searchString}");
             Console.WriteLine($"Start directory:   {startDirectory}");
             Console.WriteLine($"File filter:       {fileFilter}");
